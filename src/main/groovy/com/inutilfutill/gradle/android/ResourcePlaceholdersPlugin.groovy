@@ -13,15 +13,14 @@ class ResourcePlaceholdersPlugin implements Plugin<Project> {
 
             // Hook placeholder replacement in resource generation
             if (project.hasProperty('android') && Class.forName("com.android.build.gradle.AppExtension").isInstance(project.android)) {
-                println("Enabling resource placeholders on ${project.name}");
+                //println("Enabling resource placeholders on ${project.name}");
 
                 project.android.applicationVariants.all { variant ->
                     variant.outputs.each { output ->
                         output.processResources.doFirst {
-                            println("Replacing placeholders in XML resource files")
-
                             def placeholders = variant.mergedFlavor.manifestPlaceholders + [applicationId: variant.applicationId]
                             def files = project.fileTree(resDir).include('**/*.xml')
+                            int count = 0;
 
                             files.each { file ->
                                 def content = file.getText('UTF-8')
@@ -32,9 +31,13 @@ class ResourcePlaceholdersPlugin implements Plugin<Project> {
                                 }
 
                                 if (new_content != content) {
-                                    println(" - ${file}")
+                                    //println(" - ${file}")
+                                    count++;
                                     file.write(new_content, 'UTF-8')
                                 }
+                            }
+                            if (count != 0) {
+                                println("Replaced placeholders in ${count} XML resource files")
                             }
                         }
                     }

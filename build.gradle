@@ -24,7 +24,7 @@ dependencies {
 }
 
 group = "com.inutilfutil.gradle"
-version = '1.0.2'
+version = '1.0.3'
 
 pluginBundle {
   website = 'https://github.com/paulo-raca/gradle-plugins'
@@ -36,7 +36,7 @@ pluginBundle {
       id = 'com.inutilfutil.android-resource-placeholder'
       description = 'Support for ${placeholder} in Android resource files'
       displayName = 'Replaces placeholders in Android XML Resources'
-      version = '1.0.2'
+      version = '1.0.3'
     }
   }
 }
