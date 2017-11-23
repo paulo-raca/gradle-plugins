@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="noPlaceHolder">foo</string>
+    <string name="placeholder">${foo}</string>
+    <string name="invalidPlaceholder">${bar}</string>
+    <string name="appId">${applicationId}</string>
+</resources>

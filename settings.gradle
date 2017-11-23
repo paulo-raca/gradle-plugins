@@ -1,2 +1,2 @@
 rootProject.name = 'androidPlugins'
-include ':plugins'
+include ':plugins', ':tests'
