@@ -10,33 +10,8 @@ buildscript {
   }
 }
 
-apply plugin: 'groovy'
-apply plugin: "com.gradle.plugin-publish"
-
-repositories {
-  jcenter()
-}
-
-dependencies {
-  compile gradleApi()
-  compile localGroovy() //not needed for Java plugins
-  // other dependencies that your plugin requires
-}
-
-group = "com.inutilfutil.gradle"
-version = '1.0.3'
-
-pluginBundle {
-  website = 'https://github.com/paulo-raca/gradle-plugins'
-  vcsUrl = 'https://github.com/paulo-raca/gradle-plugins'
-  tags = ['android', 'placeholder']
-
-  plugins {
-    greetingsPlugin {
-      id = 'com.inutilfutil.android-resource-placeholder'
-      description = 'Support for ${placeholder} in Android resource files'
-      displayName = 'Replaces placeholders in Android XML Resources'
-      version = '1.0.3'
-    }
+allprojects {
+  repositories {
+    jcenter()
   }
 }
