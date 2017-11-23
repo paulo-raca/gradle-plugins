@@ -1,7 +1,7 @@
 //Use published plugin version
 ///*
 plugins {
-    id "com.inutilfutil.android-resource-placeholder" version "1.0.3"
+    id "com.inutilfutil.android-resource-placeholder" version "1.1.0"
 }
 //*/
 
@@ -11,7 +11,7 @@ plugins {
 /*
 buildscript {
     dependencies {
-        classpath files('../plugins/build/libs/plugins-1.0.3.jar')
+        classpath files('../plugins/build/libs/plugins-1.1.0.jar')
     }
 }
 apply plugin: "com.inutilfutil.android-resource-placeholder"
@@ -44,10 +44,5 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:26.+'
-    testCompile 'junit:junit:4.12'
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2')
 }
