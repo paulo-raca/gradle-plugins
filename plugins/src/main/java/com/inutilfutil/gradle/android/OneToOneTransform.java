@@ -71,6 +71,7 @@ public abstract class OneToOneTransform extends Transform {
                         jarInput.getContentTypes(),
                         jarInput.getScopes(),
                         Format.JAR);
+                outputJarFile.getParentFile().mkdirs();
 
                 Status status = transformInvocation.isIncremental() ? jarInput.getStatus() : Status.ADDED;
                 if (status == Status.NOTCHANGED) {
