@@ -22,8 +22,7 @@ public class ResourcePlaceholdersPlugin implements Plugin<Project> {
             public void execute(Project project) {
                 BaseExtension android = getAndroidExtension(project);
                 if (android != null) {
-                    Map<String, String> placeholders = new HashMap<>(); //FIXME: use actual placeholders
-                    android.registerTransform(new ResourcePlaceholdersTransform(placeholders));
+                    android.registerTransform(new ResourcePlaceholdersTransform());
                 }
             }
         });

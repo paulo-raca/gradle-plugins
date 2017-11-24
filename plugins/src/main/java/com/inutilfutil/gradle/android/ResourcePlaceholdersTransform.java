@@ -2,6 +2,8 @@ package com.inutilfutil.gradle.android;
 
 import com.android.build.api.transform.QualifiedContent;
 import com.android.build.api.transform.TransformException;
+import com.android.build.api.transform.TransformInvocation;
+import com.android.build.gradle.api.BaseVariant;
 import com.google.common.collect.ImmutableSet;
 
 import org.apache.commons.io.IOUtils;
@@ -13,17 +15,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ResourcePlaceholdersTransform extends OneToOneTransform {
-    private final Map<String, String> placeholders;
-
-    public ResourcePlaceholdersTransform(Map<String, String> placeholders) {
-        this.placeholders = placeholders;
-    }
+    private Map<String, String> placeholders;
 
     @Override
     public String getName() {
@@ -40,6 +39,15 @@ public class ResourcePlaceholdersTransform extends OneToOneTransform {
     }
 
     @Override
+    public void transform(TransformInvocation transformInvocation) throws TransformException, InterruptedException, IOException {
+        BaseVariant variant = getVariant(transformInvocation.getContext());
+        this.placeholders = new HashMap<>();
+        this.placeholders.putAll((Map)variant.getMergedFlavor().getManifestPlaceholders());
+        this.placeholders.put("applicationId", variant.getApplicationId());
+        super.transform(transformInvocation);
+    }
+
+    @Override
     public void transformFile(String path, InputStream in, OutputStream out) throws TransformException, IOException {
         if (!path.endsWith(".class")) {
             super.transformFile(path, in, out);
@@ -48,26 +56,28 @@ public class ResourcePlaceholdersTransform extends OneToOneTransform {
 
         System.out.println("Transforming XML " + path);
 
-        String originalString = IOUtils.toString(in, "UTF-8");
+        //FIXME: It treats string as ISO-8859-1 so that binary shit doesn't break
+        //UTF-8 is used on the placeholder / replaced values, so re-encoding is necessary sometimes.
+        String originalString = IOUtils.toString(in, "ISO-8859-1");
         StringBuffer resultString = new StringBuffer();
         int changedCount = 0;
         Matcher regexMatcher = Pattern.compile("\\$\\{(.*)\\}").matcher(originalString);
         while (regexMatcher.find()) {
             changedCount++;
-            System.out.println("Found match: " + regexMatcher.group() + " / " + regexMatcher.group(1));
-            String key = regexMatcher.group(1);
+            String key = new String(regexMatcher.group(1).getBytes("ISO-8859-1"), "UTF-8");
             String replacement = placeholders.get(key);
             if (replacement == null) {
                 replacement = regexMatcher.group();
                 System.err.println("Skipping unknown placeholder " + replacement + " on " + path);
             }
-            regexMatcher.appendReplacement(resultString, replacement);
+            System.out.println("Placeholder replaced: " + regexMatcher.group() + " -> " + replacement);
+            regexMatcher.appendReplacement(resultString, new String(replacement.getBytes("UTF-8"), "ISO-8859-1"));
         }
         regexMatcher.appendTail(resultString);
 
         if (changedCount > 0) {
             System.out.println("Replaced " + changedCount + " placedholders on " + path);
         }
-        out.write(resultString.toString().getBytes("UTF-8"));
+        out.write(resultString.toString().getBytes("ISO-8859-1"));
     }
 }

@@ -1,5 +1,6 @@
 package com.inutilfutil.gradle.android;
 
+import com.android.build.api.transform.Context;
 import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.Format;
 import com.android.build.api.transform.JarInput;
@@ -9,8 +10,17 @@ import com.android.build.api.transform.Transform;
 import com.android.build.api.transform.TransformException;
 import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
+import com.android.build.gradle.AppExtension;
+import com.android.build.gradle.AppPlugin;
+import com.android.build.gradle.LibraryExtension;
+import com.android.build.gradle.LibraryPlugin;
+import com.android.build.gradle.TestExtension;
+import com.android.build.gradle.TestPlugin;
+import com.android.build.gradle.api.BaseVariant;
+import com.android.build.gradle.internal.pipeline.TransformTask;
 
 import org.apache.commons.io.IOUtils;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.compile.JavaCompile;
 
 import java.io.File;
@@ -31,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -151,5 +162,32 @@ public abstract class OneToOneTransform extends Transform {
         public void close() throws IOException {
             //Ignore
         }
+    }
+
+    public static BaseVariant getVariant(Context context) throws TransformException {
+        TransformTask transformTask = (TransformTask)context;
+        Project project = transformTask.getProject();
+        List<BaseVariant> variants = new ArrayList<>();
+        if (project.getPlugins().hasPlugin(LibraryPlugin.class)) {
+            LibraryExtension android = project.getExtensions().getByType(LibraryExtension.class);
+            variants.addAll(android.getLibraryVariants());
+            variants.addAll(android.getTestVariants());
+            variants.addAll(android.getUnitTestVariants());
+        } else if (project.getPlugins().hasPlugin(AppPlugin.class)) {
+            AppExtension android = project.getExtensions().getByType(AppExtension.class);
+            variants.addAll(android.getApplicationVariants());
+            variants.addAll(android.getTestVariants());
+            variants.addAll(android.getUnitTestVariants());
+        } else if (project.getPlugins().hasPlugin(TestPlugin.class)) {
+            TestExtension android = project.getExtensions().getByType(TestExtension.class);
+            variants.addAll(android.getApplicationVariants());
+        } else {
+            throw new TransformException(project.getName() + " isn't an Android project");
+        }
+        Optional<BaseVariant> variant = variants.stream().filter(v -> transformTask.getVariantName().equals(v.getName())).findFirst();
+        if (!variant.isPresent()) {
+            throw new TransformException("Variant not found: " + project.getName() + " / " + transformTask.getVariantName());
+        }
+        return variant.get();
     }
 }
