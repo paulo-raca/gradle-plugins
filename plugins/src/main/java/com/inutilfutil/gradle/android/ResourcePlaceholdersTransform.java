@@ -71,7 +71,7 @@ public class ResourcePlaceholdersTransform extends OneToOneTransform {
                 System.err.println("Skipping unknown placeholder " + replacement + " on " + path);
             }
             System.out.println("Placeholder replaced: " + regexMatcher.group() + " -> " + replacement);
-            regexMatcher.appendReplacement(resultString, new String(replacement.getBytes("UTF-8"), "ISO-8859-1"));
+            regexMatcher.appendReplacement(resultString, Matcher.quoteReplacement(new String(replacement.getBytes("UTF-8"), "ISO-8859-1")));
         }
         regexMatcher.appendTail(resultString);
 
